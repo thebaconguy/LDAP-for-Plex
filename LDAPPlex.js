@@ -7,13 +7,13 @@ var crypto = require('crypto');
 var fs = require('fs');
 
 const defaults = {
-    debug: false,
-    port: 2389,
-    host: '0.0.0.0',
-    rootDN: 'ou=users, o=plex.tv',
-    plexToken: '',
-    plexMachineID: '',
-    plexServerName: ''
+    debug: false, // Debug Logging
+    port: 2389, // Port
+    host: '0.0.0.0', // Hostname
+    rootDN: 'ou=users, o=plex.tv', // Change if you want
+    plexToken: '', // Plex Token https://support.plex.tv/hc/en-us/articles/204059436-Finding-your-account-token-X-Plex-Token
+    plexMachineID: '', // Machine ID
+    plexServerName: '' // Name for your server.
 };
 
 const optionsFile = 'config/options.json';
@@ -94,8 +94,8 @@ function loadPlexUser(username, password) {
     var loginOptions = options;
     loginOptions.headers = loginHeaders;
 
-    return new Promise(function (resolve, reject) {
-        request(loginOptions, function (err, res, body) {
+    return new Promise((resolve, reject) => {
+        request(loginOptions, (err, res, body) => {
             if (!err && (res.statusCode == 200 || res.statusCode == 201)) {
                 plexUser = (JSON.parse(body).user);
                 plexUserToLDAP(plexUser);
@@ -121,7 +121,7 @@ function plexUserToLDAP(pUser, servers) {
     };
 
     if (servers) {
-        servers.forEach(function (server) {
+        servers.forEach(server => {
             if (plexMachineID == server.$.machineIdentifier) {
                 obj.attributes.groups = [server.$.name];
             }
@@ -132,12 +132,12 @@ function plexUserToLDAP(pUser, servers) {
 }
 
 function loadPlexUsers(token) {
-    return new Promise(function (resolve, reject) {
-        var loadMe = function (callback) {
+    return new Promise((resolve, reject) => {
+        var loadMe = (callback) => {
             request('https://plex.tv/users/account?X-Plex-Token=' + token, function (err, res, body) {
                 // Load in the current user. You don't appear in your own friends list.
                 if (!err && res.statusCode == 200) {
-                    parseString(body, function (err, result) {
+                    parseString(body, (err, result) => {
                         var me = result.user.$;
                         me.username = result.user.username;
                         var server = {$: {machineIdentifier: plexMachineID, name: plexServerName}}; // You don't appear in your friends list. Build some information so that you can auth too.
@@ -149,11 +149,11 @@ function loadPlexUsers(token) {
                 }
             });
         };
-        request('https://plex.tv/api/users?X-Plex-Token=' + token, function (err, res, body) {
+        request('https://plex.tv/api/users?X-Plex-Token=' + token, (err, res, body) => {
             if (!err && res.statusCode == 200) {
-                parseString(body, function (err, result) {
+                parseString(body, (err, result) => {
                     var users = result.MediaContainer.User;
-                    users.forEach(function (user) {
+                    users.forEach(user => {
                         plexUserToLDAP(user.$, user.Server);
                     });
                     return loadMe(resolve());
@@ -175,16 +175,16 @@ if (plexToken === '') {
     // Preload database.
     console.log('Preloading Plex users...');
     loadPlexUsers(plexToken)
-        .then(function () {
+        .then(() => {
             console.log('Database loaded.');
-            server.listen(ldapPort, ldapHostname, function () {
+            server.listen(ldapPort, ldapHostname, () => {
                 console.log('LDAP for Plex server up at: %s', server.url);
             });
         })
         .catch();
 }
 
-server.bind(rootDN, function (req, res, next) {
+server.bind(rootDN, (req, res, next) => {
     log('bindDN: ' + req.dn.toString());
 
     if (db[req.dn.toString()]) {
@@ -194,17 +194,17 @@ server.bind(rootDN, function (req, res, next) {
     }
 
     loadPlexUser(username, req.credentials)
-        .then(function (user) {
+        .then(user => {
             res.end();
             return next();
         })
-        .catch(function (err) {
+        .catch(err => {
             console.log(err);
             return next(new ldap.InvalidCredentialsError());
         });
 });
 
-server.search(rootDN, function (req, res, next) {
+server.search(rootDN, (req, res, next) => {
     log('base object: ' + req.dn.toString());
     log('scope: ' + req.scope);
     log('filter: ' + req.filter.toString());
@@ -213,7 +213,7 @@ server.search(rootDN, function (req, res, next) {
     var scopeCheck;
     var filled = false;
 
-    var search = function (req, res, next) {
+    var search = (req, res, next) => {
         switch (req.scope) {
             case 'base':
                 if (rootDN !== dn) {
@@ -233,7 +233,7 @@ server.search(rootDN, function (req, res, next) {
                 }
 
             case 'one':
-                scopeCheck = function (k) {
+                scopeCheck = (k) => {
                     if (req.dn.equals(k)) {
                         return true;
                     }
@@ -248,14 +248,14 @@ server.search(rootDN, function (req, res, next) {
                 break;
 
             case 'sub':
-                scopeCheck = function (k) {
+                scopeCheck = (k) => {
                     return (req.dn.equals(k) || req.dn.parentOf(k));
                 };
 
                 break;
         }
 
-        Object.keys(db).forEach(function (key) {
+        Object.keys(db).forEach(key => {
             if (!scopeCheck(key)) {
                 log('Skipping this key as scopeCheck returned false. ' + key);
                 return;
@@ -281,7 +281,7 @@ server.search(rootDN, function (req, res, next) {
     if (!filled) {
         // Load database again. There may have been changes.
         loadPlexUsers(plexToken)
-            .then(function () {
+            .then(() => {
                 log('Database reloaded.');
                 filled = true;
                 search(req, res, next);
