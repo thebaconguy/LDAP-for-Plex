@@ -1,0 +1,10 @@
+sudo: required
+
+language: bash
+
+services:
+  - docker
+
+script:
+ - docker build -t spicydwarf/ldap-for-plex .
+ - docker push spicydwarf/ldap-for-plex

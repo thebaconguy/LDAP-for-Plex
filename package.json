@@ -20,12 +20,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hjone72/LDAP-for-Plex.git"
+    "url": "git+https://github.com/SpicyDwarf/LDAP-for-Plex.git"
   },
   "bugs": {
-    "url": "https://github.com/hjone72/LDAP-for-Plex/issues"
+    "url": "https://github.com/SpicyDwarf/LDAP-for-Plex/issues"
   },
-  "homepage": "https://github.com/hjone72/LDAP-for-Plex",
+  "homepage": "https://github.com/SpicyDwarf/LDAP-for-Plex",
   "dependencies": {
     "ldapjs": "^1.0.1",
     "request": "^2.81.0",

@@ -110,7 +110,7 @@ function loadPlexUser(username, password) {
 function plexUserToLDAP(pUser, servers) {
     var obj = {
         attributes: {
-            objectclass: ['Plex.tv User'],
+            objectclass: ['Plex.tv user'],
             cn: pUser.username,
             uid: pUser.id,
             email: pUser.email,
@@ -184,7 +184,7 @@ if (plexToken === '') {
 
 server.bind(rootDN, (req, res, next) => {
     log('bindDN: ' + req.dn.toString());
-
+    
     if (db[req.dn.toString()]) {
         var username = db[req.dn.toString()].attributes.cn;
     } else {
