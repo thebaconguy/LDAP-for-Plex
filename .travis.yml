@@ -6,5 +6,6 @@ services:
   - docker
 
 script:
+ - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
  - docker build -t spicydwarf/ldap-for-plex .
  - docker push spicydwarf/ldap-for-plex
