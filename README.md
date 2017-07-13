@@ -1,8 +1,6 @@
 # LDAP-for-Plex
 An LDAP server that uses Plex as the provider.
 
-[![Build Status](https://travis-ci.org/SpicyDwarf/LDAP-for-Plex.svg?branch=master)](https://travis-ci.org/SpicyDwarf/LDAP-for-Plex)
-
 If the project gets some traction more features could be added. Due to the way ldapjs works it should be possible to add support for changing passwords, usernames and various other things too.
 
 # Warning
