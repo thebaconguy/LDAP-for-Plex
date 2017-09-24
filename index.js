@@ -1,10 +1,10 @@
 // Imports
-var request = require('request');
-var uuid = require('uuid');
-var parseString = require('xml2js').parseString;
-var ldap = require('ldapjs');
-var crypto = require('crypto');
-var fs = require('fs');
+const request = require('request');
+const uuid = require('uuid');
+const parseString = require('xml2js').parseString;
+const ldap = require('ldapjs');
+const crypto = require('crypto');
+const fs = require('fs');
 
 const defaults = {
     debug: false, // Debug Logging
@@ -17,10 +17,8 @@ const defaults = {
 };
 
 const optionsFile = 'config/options.json';
-const configFolder = 'config/';
 
-if (!fs.existsSync(optionsFile) && !fs.existsSync(configFolder)) {
-    fs.mkdirSync(configFolder);
+if (!fs.existsSync(optionsFile)) {
     var json = JSON.stringify(defaults, null, '\t');
     fs.writeFileSync(optionsFile, json);
     console.log("Please fill out config/options.json");
@@ -32,23 +30,28 @@ if (!fs.existsSync(optionsFile) && !fs.existsSync(configFolder)) {
     process.exit();
 }
 
-var config = require('./config/options.json');
+const config = require('./config/options.json');
 
 // Configuration
-var version = '0.2';
-var debug = config.debug;
-var ldapPort = config.port;
-var ldapHostname = config.host;
-var rootDN = config.rootDN; // This can be anything you like. It won't change anything though.
-var plexToken = config.plexToken; // Your Plex token. This is used to get your friends list.
-var plexMachineID = config.plexMachineID; // Only allow servers that have this MachineID.
-var plexServerName = config.plexServerName; // The name of your server.
+const version = '0.3';
+const debug = config.debug;
+const ldapPort = config.port;
+const ldapHostname = config.host;
+const rootDN = config.rootDN; // This can be anything you like. It won't change anything though.
+const plexToken = config.plexToken; // Your Plex token. This is used to get your friends list.
+const plexMachineID = config.plexMachineID; // Only allow servers that have this MachineID.
+const plexServerName = config.plexServerName; // The name of your server.
 
-// Variables
-var plexUser;
-var server = ldap.createServer();
+const plexUser;
+const server = ldap.createServer();
 
-const headers = {
+const options = {
+    url: 'https://plex.tv/users/sign_in.json',
+    method: 'POST',
+    headers: {}
+};
+
+options.headers = {
     'X-Plex-Client-Identifier': uuid.v4(),
     'X-Plex-Product': 'LDAP for Plex',
     'X-Plex-Device': 'LDAP for Plex',
@@ -57,19 +60,13 @@ const headers = {
     'Content-Length': 0
 };
 
-var options = {
-    url: 'https://plex.tv/users/sign_in.json',
-    method: 'POST',
-    headers: headers
-};
-
-var db = {}; // In memory database. This also acts as a cache.
+let db = {}; // In memory database. This also acts as a cache.
 
 // Functions
-function authHeaderVal(username, password) {
+const authHeaderVal = async (username, password) => {
     // Generate a value based on UN and PW to send with the header for authentication.
-    var authString = username + ':' + password;
-    var buffer = new Buffer(authString.toString(), 'binary');
+    let authString = username + ':' + password;
+    let buffer = new Buffer(authString.toString(), 'binary');
     return 'Basic ' + buffer.toString('base64');
 }
 
@@ -82,17 +79,15 @@ function authHeaderVal(username, password) {
  }
  */
 
-function log(msg) {
+const log = async msg => {
     if (debug) {
         console.log(msg);
     }
 }
 
-function loadPlexUser(username, password) {
-    var loginHeaders = headers;
-    loginHeaders.Authorization = authHeaderVal(username, password);
-    var loginOptions = options;
-    loginOptions.headers = loginHeaders;
+const loadPlexUser = async (username, password) => {
+    const loginOptions = options;
+    loginOptions.headers.Authorization = authHeaderVal(username, password);
 
     return new Promise((resolve, reject) => {
         request(loginOptions, (err, res, body) => {
@@ -107,8 +102,8 @@ function loadPlexUser(username, password) {
     });
 }
 
-function plexUserToLDAP(pUser, servers) {
-    var obj = {
+const plexUserToLDAP = async (pUser, servers) => {
+    let user = {
         attributes: {
             objectclass: ['Plex.tv user'],
             cn: pUser.username,
@@ -131,17 +126,17 @@ function plexUserToLDAP(pUser, servers) {
     db['uid=' + pUser.id + ', ' + rootDN] = obj;
 }
 
-function loadPlexUsers(token) {
+const loadPlexUsers = async token => {
     return new Promise((resolve, reject) => {
-        var loadMe = callback => {
+        const loadMe = callback => {
             request('https://plex.tv/users/account?X-Plex-Token=' + token, (err, res, body) => {
                 // Load in the current user. You don't appear in your own friends list.
                 if (!err && res.statusCode == 200) {
-                    parseString(body, (err, result) => {
-                        var me = result.user.$;
+                    parseString(body, async (err, result) => {
+                        let me = result.user.$;
                         me.username = result.user.username;
-                        var server = { $: { machineIdentifier: plexMachineID, name: plexServerName } }; // You don't appear in your friends list. Build some information so that you can auth too.
-                        plexUserToLDAP(me, [server]);
+                        let server = { $: { machineIdentifier: plexMachineID, name: plexServerName } }; // You don't appear in your friends list. Build some information so that you can auth too.
+                        await plexUserToLDAP(me, [server]);
                     });
                 } else {
                     log(body);
@@ -152,7 +147,7 @@ function loadPlexUsers(token) {
         request('https://plex.tv/api/users?X-Plex-Token=' + token, (err, res, body) => {
             if (!err && res.statusCode == 200) {
                 parseString(body, (err, result) => {
-                    var users = result.MediaContainer.User;
+                    let users = result.MediaContainer.User;
                     users.forEach(user => {
                         plexUserToLDAP(user.$, user.Server);
                     });
@@ -168,15 +163,15 @@ function loadPlexUsers(token) {
 
 // Start //
 // LDAP Server //
-if (plexToken === '') {
+if (typeof plexToken !== 'string') {
     console.log('A valid Plex token is required...');
     process.exit();
 } else {
     // Preload database.
     console.log('Preloading Plex users...');
-    loadPlexUsers(plexToken).then(() => {
+    await loadPlexUsers(plexToken).then(async () => {
         console.log('Database loaded.');
-        server.listen(ldapPort, ldapHostname, () => {
+        server.listen(ldapPort, ldapHostname, async () => {
             console.log('LDAP for Plex server up at: %s', server.url);
         });
     }).catch();
