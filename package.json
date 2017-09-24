@@ -2,9 +2,9 @@
   "name": "ldap-for-plex",
   "version": "0.3",
   "description": "An LDAP server that uses Plex as the provider.",
-  "main": "LDAPPlex.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node LDAPPlex.js"
+    "start": "node index.js"
   },
   "contributors": [
     {
