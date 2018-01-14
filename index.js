@@ -42,7 +42,7 @@ const plexToken = config.plexToken; // Your Plex token. This is used to get your
 const plexMachineID = config.plexMachineID; // Only allow servers that have this MachineID.
 const plexServerName = config.plexServerName; // The name of your server.
 
-const plexUser;
+const plexUser = {};
 const server = ldap.createServer();
 
 const options = {
