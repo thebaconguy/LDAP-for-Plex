@@ -20,7 +20,7 @@ Now you should be able to run `yarn start` and your server will start.
 Running with docker.
 
 Run using automated build:
-1. `docker run -v /path/to/config:/usr/src/LDAP-For-Plex/config -p 2389:2389 thebaconguy/ldap-for-plex`
+1. `docker run -v /path/to/config:/usr/src/LDAP-For-Plex/config -p 389:389 thebaconguy/ldap-for-plex`
 
 Change the path to config and the port depending on your configuration.
 
