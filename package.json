@@ -16,17 +16,22 @@
       "name": "SpicyDwarf",
       "email": "",
       "url": ""
+    },
+    {
+      "name": "thebaconguy",
+      "email": "",
+      "url": ""
     }
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SpicyDwarf/LDAP-for-Plex.git"
+    "url": "git+https://github.com/thebaconguy/LDAP-for-Plex.git"
   },
   "bugs": {
-    "url": "https://github.com/SpicyDwarf/LDAP-for-Plex/issues"
+    "url": "https://github.com/thebaconguy/LDAP-for-Plex/issues"
   },
-  "homepage": "https://github.com/SpicyDwarf/LDAP-for-Plex",
+  "homepage": "https://github.com/thebaconguy/LDAP-for-Plex",
   "dependencies": {
     "ldapjs": "^1.0.1",
     "request": "^2.81.0",
