@@ -8,9 +8,9 @@ const fs = require('fs');
 
 const defaults = {
     debug: false, // Debug Logging
-    port: 2389, // Port
+    port: 389, // Port
     host: '0.0.0.0', // Hostname
-    rootDN: 'ou=users, o=plex.tv', // Change if you want
+    rootDN: 'ou=users,o=plex.tv', // Change if you want
     plexToken: '', // Plex Token https://support.plex.tv/hc/en-us/articles/204059436-Finding-your-account-token-X-Plex-Token
     plexMachineID: '', // Machine ID
     plexServerName: '' // Name for your server.
