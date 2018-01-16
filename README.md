@@ -4,7 +4,7 @@ An LDAP server that uses Plex as the provider.
 If the project gets some traction more features could be added. Due to the way ldapjs works it should be possible to add support for changing passwords, usernames and various other things too.
 
 # Warning
-This LDAP server does not currently require authentication to preform queries so I suggest you don't expose the server externally.
+This LDAP server does not currently require authentication to perform queries so I suggest you don't expose the server externally.
 
 ## Installation
 These steps assume you have NodeJS and Yarn installed.
@@ -20,7 +20,7 @@ Now you should be able to run `yarn start` and your server will start.
 Running with docker.
 
 Run using automated build:
-1. `docker run -v /path/to/config:/usr/src/LDAP-For-Plex/config -p 2389:2389 spicydwarf/ldap-for-plex`
+1. `docker run -v /path/to/config:/usr/src/LDAP-For-Plex/config -p 2389:2389 thebaconguy/ldap-for-plex`
 
 Change the path to config and the port depending on your configuration.
 
