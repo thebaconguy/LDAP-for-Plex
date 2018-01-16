@@ -169,7 +169,7 @@ if (typeof plexToken !== 'string') {
 } else {
     // Preload database.
     console.log('Preloading Plex users...');
-    await loadPlexUsers(plexToken).then(async () => {
+    loadPlexUsers(plexToken).then(async () => {
         console.log('Database loaded.');
         server.listen(ldapPort, ldapHostname, async () => {
             console.log('LDAP for Plex server up at: %s', server.url);
