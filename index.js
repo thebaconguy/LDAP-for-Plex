@@ -118,12 +118,12 @@ const plexUserToLDAP = async (pUser, servers) => {
     if (servers) {
         servers.forEach(server => {
             if (plexMachineID == server.$.machineIdentifier) {
-                obj.attributes.groups = [server.$.name];
+                user.attributes.groups = [server.$.name];
             }
         });
     }
 
-    db['uid=' + pUser.id + ', ' + rootDN] = obj;
+    db['uid=' + pUser.id + ', ' + rootDN] = user;
 }
 
 const loadPlexUsers = async token => {
