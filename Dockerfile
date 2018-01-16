@@ -7,4 +7,6 @@ RUN npm install
 
 VOLUME /usr/src/LDAP-For-Plex/config
 
+EXPOSE 389
+
 CMD ["npm","start"]
